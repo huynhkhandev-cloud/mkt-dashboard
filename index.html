@@ -1,0 +1,1898 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>DAT Marketing Dashboard</title>
+        <style>
+            :root {
+                --navy: #365f96;
+                --navy2: #2f5c92;
+                --sky: #69b1eb;
+                --blue: #168cf4;
+                --blue2: #173db4;
+                --orange: #f36a2e;
+                --green: #0faf3e;
+                --red: #d94a55;
+                --purple: #5a0b7d;
+                --ink: #2b2b2b;
+                --muted: #777;
+                --line: #d8d8d8;
+                --shadow: 0 3px 9px rgba(0, 0, 0, 0.25);
+                --card-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                background: #f3f4f6;
+                color: var(--ink);
+                font-family: "Segoe UI", Arial, sans-serif;
+            }
+            body {
+                min-width: 1180px;
+            }
+            button,
+            select {
+                font: inherit;
+            }
+            .app {
+                min-height: 100vh;
+                background: #fff;
+            }
+            .topline {
+                height: 10px;
+                background: #f7f7f7;
+                border-bottom: 1px solid #ddd;
+            }
+            .dashboard-shell {
+                display: flex;
+                min-height: calc(100vh - 10px);
+            }
+            .sidebar {
+                width: 78px;
+                background: var(--navy);
+                position: sticky;
+                top: 0;
+                height: 100vh;
+                padding: 7px 7px 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 11px;
+            }
+            .logo {
+                width: 60px;
+                height: 34px;
+                background: white;
+                border-radius: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+            .logo img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+            .sidebtn {
+                width: 60px;
+                min-height: 35px;
+                padding: 5px 3px;
+                border: 1px solid #606060;
+                border-radius: 5px;
+                background: #fff;
+                font-size: 8px;
+                font-weight: 600;
+                line-height: 1.1;
+                cursor: pointer;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            }
+            .sidebtn.active {
+                outline: 2px solid #dbba62;
+                background: #fff8e3;
+            }
+            .sidebtn:hover {
+                transform: translateY(-1px);
+            }
+            .content {
+                flex: 1;
+                background: #fff;
+                overflow: auto;
+            }
+            .filterbar {
+                background: var(--navy);
+                padding: 9px 10px 8px;
+                display: grid;
+                grid-template-columns: 1.15fr 0.78fr 0.78fr 0.82fr 0.95fr 0.85fr 0.72fr;
+                gap: 6px;
+                color: white;
+                border-bottom: 1px solid #d9d9d9;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            .filter {
+                background: var(--sky);
+                padding: 5px 8px 6px;
+                min-width: 0;
+            }
+            .filter label {
+                display: block;
+                font-size: 13px;
+                margin-bottom: 3px;
+            }
+            .filter select {
+                width: 100%;
+                height: 25px;
+                border: 1px solid rgba(255, 255, 255, 0.45);
+                background: #72b8ef;
+                color: #fff;
+                padding: 0 6px;
+                font-size: 11px;
+            }
+            .page {
+                display: none;
+                padding: 24px 26px 42px;
+                min-height: 100vh;
+                background: #fff;
+            }
+            .page.active {
+                display: block;
+            }
+            .kpi-wrap {
+                background: #fff;
+                padding: 9px 14px 12px;
+                box-shadow: var(--shadow);
+                margin-bottom: 20px;
+            }
+            .kpis {
+                display: grid;
+                gap: 14px;
+            }
+            .kpis.cols-5 {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            .kpis.cols-6 {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            .kpis.cols-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .kpi {
+                min-height: 60px;
+                border: 1px solid #e2eef9;
+                border-left: 3px solid var(--blue);
+                box-shadow: var(--card-shadow);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 8px 10px;
+                background: #fff;
+            }
+            .kpi .value {
+                font-size: 18px;
+                line-height: 1;
+                font-weight: 500;
+            }
+            .kpi .label {
+                font-size: 10px;
+                color: #777;
+                margin-top: 5px;
+            }
+            .kpi.big .value {
+                font-size: 24px;
+            }
+            .section-title {
+                font-size: 14px;
+                font-weight: 700;
+                margin: 14px 0 9px;
+            }
+            .grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            .grid-3 {
+                display: grid;
+                grid-template-columns: 1.05fr 1.05fr 0.8fr;
+                gap: 14px;
+            }
+            .panel {
+                border: 1px solid #bfc3c8;
+                border-radius: 8px;
+                background: #fff;
+                box-shadow: var(--shadow);
+                padding: 8px 8px 10px;
+                min-height: 175px;
+                overflow: hidden;
+            }
+            .panel h3 {
+                font-size: 12px;
+                margin: 0 0 4px;
+                font-weight: 700;
+            }
+            .panel .sub {
+                font-size: 9px;
+                color: #777;
+                margin-bottom: 4px;
+            }
+            .svgchart {
+                width: 100%;
+                height: 150px;
+                display: block;
+            }
+            .legend {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                font-size: 9px;
+                color: #555;
+                margin-top: 3px;
+                flex-wrap: wrap;
+            }
+            .dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 3px;
+            }
+            .blue {
+                background: var(--blue);
+            }
+            .navy {
+                background: var(--blue2);
+            }
+            .orange {
+                background: var(--orange);
+            }
+            .green {
+                background: var(--green);
+            }
+            .red {
+                background: var(--red);
+            }
+            .purple {
+                background: var(--purple);
+            }
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 10px;
+            }
+            .table th,
+            .table td {
+                padding: 3px 6px;
+                border-bottom: 1px solid #e3e3e3;
+                text-align: right;
+                white-space: nowrap;
+            }
+            .table th:first-child,
+            .table td:first-child {
+                text-align: left;
+            }
+            .table th {
+                font-weight: 600;
+                color: #555;
+                background: #fff;
+            }
+            .table tr:nth-child(even) td {
+                background: #f2f2f2;
+            }
+            .table tfoot td {
+                font-weight: 700;
+            }
+            .donut-row {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 24px;
+                min-height: 180px;
+            }
+            .donut {
+                width: 135px;
+                height: 135px;
+                border-radius: 50%;
+                position: relative;
+                background: conic-gradient(
+                    var(--blue) 0 84.83%,
+                    var(--blue2) 84.83% 100%
+                );
+            }
+            .donut:after {
+                content: "";
+                position: absolute;
+                inset: 31px;
+                background: white;
+                border-radius: 50%;
+            }
+            .donut.call {
+                background: conic-gradient(
+                    #0db83f 0 54%,
+                    #188bf0 54% 81%,
+                    #21339f 81% 92.4%,
+                    #f0441f 92.4% 99.2%,
+                    #df851b 99.2% 100%
+                );
+            }
+            .donut.legendpie {
+                background: conic-gradient(
+                    #168cf4 0 29.31%,
+                    #1839a9 29.31% 47.7%,
+                    #f0803e 47.7% 62.87%,
+                    #7c1497 62.87% 76.5%,
+                    #d13664 76.5% 84.26%,
+                    #c76d00 84.26% 87.72%,
+                    #7464b4 87.72% 90.88%,
+                    #23a8c7 90.88% 93.5%,
+                    #ffc107 93.5% 96%,
+                    #6d2727 96% 100%
+                );
+            }
+            .donut.sources {
+                background: conic-gradient(
+                    #168cf4 0 45.32%,
+                    #173db4 45.32% 61.17%,
+                    #e34925 61.17% 69.64%,
+                    #5a0b7d 69.64% 77.9%,
+                    #7a31aa 77.9% 83.6%,
+                    #bb4252 83.6% 88.15%,
+                    #d79317 88.15% 91.8%,
+                    #45963b 91.8% 95%,
+                    #4f66ba 95% 100%
+                );
+            }
+            .legend-col {
+                font-size: 9px;
+                line-height: 1.8;
+            }
+            .mini-bars {
+                display: flex;
+                align-items: flex-end;
+                gap: 10px;
+                height: 135px;
+                padding: 8px 8px 0;
+                border-left: 1px solid #ddd;
+                border-bottom: 1px solid #ddd;
+            }
+            .mini-bars .b {
+                width: 18px;
+                background: var(--blue);
+                position: relative;
+            }
+            .mini-bars .b::after {
+                content: attr(data-v);
+                position: absolute;
+                top: -14px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 8px;
+                white-space: nowrap;
+            }
+            .mini-bars .lbl {
+                position: absolute;
+                bottom: -18px;
+                left: 50%;
+                transform: translateX(-50%) rotate(-28deg);
+                font-size: 8px;
+                white-space: nowrap;
+                color: #777;
+            }
+            .barh {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 8px;
+            }
+            .barh-row {
+                display: grid;
+                grid-template-columns: 120px 1fr 44px;
+                align-items: center;
+                gap: 8px;
+                font-size: 9px;
+            }
+            .track {
+                height: 14px;
+                background: #f5f5f5;
+                position: relative;
+                border-left: 1px solid #ddd;
+            }
+            .fill {
+                height: 100%;
+                background: var(--blue);
+            }
+            .fill.navy {
+                background: var(--blue2);
+            }
+            .fill.orange {
+                background: var(--orange);
+            }
+            .heat {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9px;
+            }
+            .heat th,
+            .heat td {
+                border-bottom: 1px solid white;
+                padding: 4px;
+                text-align: center;
+            }
+            .heat td {
+                background: #dfefff;
+            }
+            .heat .med {
+                background: #b8dcfb;
+            }
+            .heat .high {
+                background: #78bff4;
+            }
+            .heat .low {
+                background: #f5d0c8;
+            }
+            .chart-area {
+                position: relative;
+                height: 155px;
+                padding: 7px 12px 16px 34px;
+            }
+            .axis-y {
+                position: absolute;
+                left: 0;
+                top: 5px;
+                bottom: 18px;
+                border-right: 1px solid #ddd;
+                width: 30px;
+            }
+            .axis-y span {
+                position: absolute;
+                right: 3px;
+                font-size: 8px;
+                color: #888;
+            }
+            .axis-x {
+                position: absolute;
+                left: 34px;
+                right: 0;
+                bottom: 0;
+                display: flex;
+                justify-content: space-around;
+                font-size: 8px;
+                color: #777;
+            }
+            .line-svg {
+                position: absolute;
+                left: 34px;
+                right: 0;
+                top: 4px;
+                bottom: 20px;
+                width: calc(100% - 34px);
+                height: calc(100% - 24px);
+            }
+            .callout {
+                position: absolute;
+                font-size: 8px;
+                color: #555;
+            }
+            .two-row-kpis {
+                display: grid;
+                gap: 18px;
+            }
+            .hr {
+                height: 1px;
+                background: #eee;
+                margin: 12px 0;
+            }
+            .badge {
+                background: #168cf4;
+                color: #fff;
+                padding: 1px 5px;
+                border-radius: 2px;
+                font-size: 8px;
+            }
+            .scroll-note {
+                font-size: 8px;
+                color: #9b9b9b;
+                text-align: right;
+            }
+            .footer-spacer {
+                height: 18px;
+            }
+            @media (max-width: 1250px) {
+                body {
+                    min-width: 1100px;
+                }
+                .filterbar {
+                    grid-template-columns: 1.1fr 0.75fr 0.78fr 0.75fr 0.8fr 0.7fr 0.65fr;
+                }
+                .page {
+                    padding: 18px 18px 36px;
+                }
+            }
+
+            .filterbar {
+                position: static;
+            }
+            .filterbar.f4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .filterbar.f3 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .page {
+                padding: 0 0 42px;
+            }
+            .pbody {
+                padding: 20px 26px 0;
+            }
+            .panel {
+                min-height: 0;
+            }
+            .panel svg.ch {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+            .x {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 14px;
+            }
+            .full {
+                margin-bottom: 6px;
+            }
+            .kpi .dl {
+                font-size: 10px;
+                font-weight: 700;
+                margin-top: 3px;
+            }
+            .up {
+                color: var(--green);
+            }
+            .dn {
+                color: var(--red);
+            }
+            .ax {
+                font-size: 8px;
+                fill: #888;
+            }
+            .gl {
+                stroke: #eee;
+            }
+            .vl {
+                font-size: 8px;
+                font-weight: 600;
+                fill: #444;
+            }
+            .donut {
+                width: 150px;
+                height: 150px;
+            }
+            .donut:after {
+                inset: 34px;
+            }
+            .legend-col div {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .legend-col b {
+                margin-left: auto;
+                padding-left: 14px;
+            }
+            .tb-wrap {
+                overflow-x: auto;
+            }
+            .table td.l,
+            .table th.l {
+                text-align: left;
+            }
+            .badge.g {
+                background: #d94a55;
+            }
+            .good {
+                color: var(--blue);
+                font-weight: 600;
+            }
+            .warn {
+                color: var(--orange);
+                font-weight: 600;
+            }
+            .note {
+                font-size: 9px;
+                color: #9b9b9b;
+                margin: 6px 0 0;
+            }
+            .ptools {
+                display: flex;
+                gap: 14px;
+                flex-wrap: wrap;
+                align-items: center;
+                margin: 2px 0 6px;
+                font-size: 11px;
+            }
+            .ptools label {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+            }
+            .ptools input {
+                accent-color: var(--blue);
+            }
+            .mini-sel {
+                float: right;
+                border: 1px solid #cfd3d8;
+                border-radius: 4px;
+                padding: 2px 6px;
+                font-size: 11px;
+                background: #fff;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            }
+            .mini-sel-wrap {
+                font-size: 10px;
+                color: #555;
+                float: right;
+                text-align: left;
+            }
+            .mini-sel-wrap span {
+                display: block;
+                margin-bottom: 2px;
+            }
+            .donut {
+                background: #eee;
+            }
+            .barh-row.cost {
+                grid-template-columns: 150px 1fr 84px;
+                font-size: 10px;
+            }
+            .barh-row.cost .track {
+                height: 16px;
+            }
+            .barh-row.cost b {
+                text-align: right;
+            }
+
+            .filterbar.f1 {
+                grid-template-columns: 260px;
+            }
+            .kpi .dl.mu {
+                color: #777;
+                font-weight: 400;
+            }
+            #page-p2 svg text {
+                font-family: "Segoe UI", Arial, sans-serif;
+                font-size: 10px;
+                fill: #555;
+            }
+            #page-p2 .table th:nth-child(2),
+            #page-p2 .table td:nth-child(2) {
+                text-align: left;
+            }
+            #page-p2 .table td {
+                font-size: 11px;
+                padding: 5px 8px;
+            }
+            #page-p2 .table th {
+                font-size: 11px;
+                padding: 5px 8px;
+            }
+            #page-p2 tr.tot td {
+                font-weight: 700;
+                background: #e8f1fb !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div class="topline"></div>
+            <div class="dashboard-shell">
+                <aside class="sidebar">
+                    <div class="logo">
+                        <img
+                            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAAAoCAIAAADMshv5AAAIr0lEQVR4nN1ZaWxU1xU+5963zIxn7PGGN4wNBgzGxAYMhC1AmhJIEF3SH60CMShEpe2ftlEStWr7q6nUJYoSNU1+JA0GRWoDiRSR0FADRiwBFwI2UAy2g7Gh2GawPfbYs7137+mPNx6/8abEWGyfRqM3b+bcOd8957vn3PuQiODhArvXDkw+HkJKQEREtPW5zVuf22y/eHCvH8IooX15kFISkSlk1b6zB0591dreDff92kEiPHjJABGRKdanbZVbAODdv+88eq7l5Tc+l5IAAAet7rqf3wAkDAQARIq9c8X+tWHKl96oBuD44OQjEZGMIiIRIuPAKCHx/rzr+D+rL9xD/yYAGfSRESJA5ByQAVMTonSivu1eeTZhkDSliAAiEifkqGAsSpaWZq7ejuMYAwgh/YFwa4e/qzcYiphSyrF6D1Vh03NT5xVl4YhB+oORLy/f7OuPmEICACKonOdnp8wrmsIZw2+oXRHq+WjfQQAExoGpjCdG6VfbHmM4JikiICBTyHDY/Ljm0sc1l7p6g4YhRqXl1NVnN5Q9vbJ45CBCyvrGjpffPBAYiEgiRMxITXr9xaey09yMjTOlo+OjA//ZKwzkHCQBICHGKL1ftRsAxpxzAABABATUFK65eeXGBeuWzXz1vSP1jR0RwxxmxxBdDnXJvKmjDqJwVj47u7ggo+5Ke9QUCmc/XFeane4eZzbHAxGQJAmAhMSA+ASXNkTISff84WffXlFeoIwYRFHYyvICr8c5ljnnbNWCAk3jAMAQk5zaxPhIoqgpACRJgQRAkohi3myr3GLJaSxLKUnKhK4dETxJ+iuVq8pn5wxzyKErFSV5I6nasWbRdJeuMkQCkJKEkPaXlDQyZYgSfmmY0tc9cPxMA0mJCESSAABIGeXfbEMIKbv7gjdu+m75/JIgMyN1ev6UtGSnlfQM0ePSn91Qdvna7UAwEqfq0tW5hZlxmlFTBEOGx6VxG8l0r2vBnNya01dNIesaO6ylIg5V4Qvn5E7LTrHf7OkLnbp4PRg2rI+hiLH/eGNL41UAIknILEY0ppaIIGqYnb6et6o+S7p95mn3CUl4KLSk1bnkly9snJGXwRizhPHIrOzlZdP+farJslY4K5udk+51xYfq8gf3HLz4/HcWJTm1+E2Fs9KiKV/Ut/WHIp+fbKqubbZ779CV3+94Yhgln3/gb3tqu/tCgy6CKaURNYEI0PJcwjibC1PI3kD/a+/s+UH/X36evGsqth3uKcZI32b51z+9+cGVtttWFiKCQ1OeXDaTs9hQDk39/toSTeHxqTl2rvXclfZg2LCnEkNcWprv0BUAEEJGDWF/GYY0pRzmkpRkmLZfmkJKShADwRClkVqKRI3Pas6tD+8u0VtuGOmf9C6vDc3Z37e4yvf4dn3np4fPx1NF4awg26up3Mq0nAz3tOwUKzOJwBCi9uKN1nZ/wzWfSPQyJ8M9tzAzPhcTRyzFY9xGH44IQqFw9ZGz5c7mhvDU33RszVJ6fpK2z82CTZFcNwx0NBwXIpbTjGFaitNKKsawMDc1nmAENBCKXmn1BcPGJ0cuRw1h/xddUzasmK2p/E4pJWJ0LRGQYUQZRZN4+NOuZdNU3+Puegn8ycjZvb0ru4Unk/XY1zgEVBUOAA5N+d7aEn3QS5J09Oy1nkDYFLKp7fat7oHCXG/ciiHOyk/3uh1xxU8mpWFAQFXVBOq9wi0BG8L5//Cv9rDQ/sBihpSm9PvCafYlloAMUwBAdrq7KC+NDeaSJDh5/nqm1yUkOXS1uy9YkOO1L/iZqa50r6ujq3/8Kj8RSpaQ3tu5K0YJweXU169deK62aEXSpaMD83f3PCEJGVKh1umXnux5KzlXY35L6vKHBkJRAFhamu90KHGnFc5+98JaU0ggQAa6qgyrqLqmVG5c8Nu3D4UikxaoMaWpadpTq8sOObaojF7K3FvhbFrgal7nOft85sEqo3LTmvnxSmoK2dbhjxpCU5WFc3JVZUgbiOByqMlJerJb97j0kbLhjJUWZaWnjNlnTABj1iWFs+Rkz4s7nnlnl4M6z29KP8lAHotUfKj+9JUdGwvz0hFja1o4ah441SyJUpzaI7Oy4q2nJBKCKLGxZoicDTUbiODUlXlFWf/z9U1W6o3ZPSCCpiq5WWm/+PEzN26u9nVtkQTrM1Kn52V6B7sHADCFPN/U8UV9GyJuXFXsHuzWJFHH7cCeg/8VkgAgXsQKcrybHpurKkPZoanKo/On1py+GjXFaI5MlNIwLcVZKZxlprozvO5Bn9AuBkkUCEY++Ff9QDiqKnxp6VRuy8YzDTc/PHhRWJwAAIAhZKa61y6akZrsjI/DOT5amu92aT2B0KQE6muVOURgDBlL4EMEgYHIH6uO1TW2A0CSU501LT0evWhUnKhvi0RN09aMGqb0B0JHvmyxZ6PVia9ZNH0S2NgpvV+125LT1wQRtHcFfv1W9Ym6VlNIhbGyWdkel84GBebvD9ddaR9paJjiWN21YU29qvDy4hx2520EAIyjpZEYa1dLBIrCtn+3Ih4iQ4jDp7+K9+Z2CEEXmjvbOvz5WV6Fx9YJznFxSZ5LVwdC0TsvUJNz9qBryrcWz9A1xTI3pbzQ1Nna7h/VP85Zhte1sDjHoavx5sw0ZXVtc3yDzDlbUpKXk+GxG/YEQifPXw9HTftN098iBm4BMmQcmIpcT6B0QS6f6NTcM5j+FtHfCYwjU4ApQ5QsVGx5+x46NzEkUOIKMv3BOVYdB4hDp93D6hKZC0maJAwkk6RJUgBJIElAEzq8uRsQ/Z2D+yUEQIgfesVhHZkDoVVWiQCQIRDcr88/a/a8NuxOQo+36EevAyIgksUYEBknsvpodh8+1bVq/6t1Gfabw6JknUogMgaSEZK1+0VEAJrYyeHdR4KWACsQGCARECAHhkASkQHRsP39/YHR5zghSoiMSIL1dIkhkgBgEDuEua/IjIf/A2AeBBOtHSVzAAAAAElFTkSuQmCC"
+                            alt="DAT"
+                        />
+                    </div>
+                    <button class="sidebtn active" data-page="p1">
+                        Tương tác<br />mạng xã hội</button
+                    ><button class="sidebtn" data-page="p2">
+                        Chi phí<br />chiến dịch
+                    </button>
+                </aside>
+                <main class="content">
+                    <div class="page active" id="page-p1">
+                        <div class="filterbar f4">
+                            <div class="filter">
+                                <label>Kênh quảng cáo</label
+                                ><select id="fk" onchange="rt()">
+                                    <option>All</option>
+                                </select>
+                            </div>
+                            <div class="filter">
+                                <label>BU</label
+                                ><select id="fb" onchange="rt()">
+                                    <option>All</option>
+                                </select>
+                            </div>
+                            <div class="filter">
+                                <label>Format</label
+                                ><select id="ff" onchange="rt()">
+                                    <option>All</option>
+                                </select>
+                            </div>
+                            <div class="filter">
+                                <label>Thời gian</label
+                                ><select>
+                                    <option>All</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pbody">
+                            <div class="kpi-wrap">
+                                <div class="kpis cols-6" id="k1"></div>
+                            </div>
+                            <div class="section-title">
+                                1. Xu hướng tương tác 4 nền tảng theo tháng
+                            </div>
+                            <div class="full">
+                                <div class="panel">
+                                    <h3>Xu hướng 4 nền tảng theo tháng</h3>
+                                    <div class="sub">
+                                        Facebook · TikTok · Website · YouTube –
+                                        chọn/bỏ chọn nền tảng để so sánh
+                                    </div>
+                                    <div class="ptools" id="pt"></div>
+                                    <div id="c1"></div>
+                                    <div class="legend" id="lg1"></div>
+                                </div>
+                            </div>
+                            <div class="section-title">
+                                2. Phân tích kênh O&amp;O
+                            </div>
+                            <div class="grid-2">
+                                <div class="panel">
+                                    <h3>
+                                        So sánh khối lượng tương tác giữa các
+                                        nền tảng
+                                    </h3>
+                                    <div class="donut-row" id="d2"></div>
+                                </div>
+                                <div class="panel">
+                                    <div class="mini-sel-wrap">
+                                        <span>Nền tảng</span
+                                        ><select
+                                            class="mini-sel"
+                                            id="fp"
+                                            style="float: none"
+                                            onchange="pie()"
+                                        >
+                                            <option>All</option>
+                                            <option>Facebook</option>
+                                            <option>TikTok</option>
+                                            <option>Website</option>
+                                            <option>YouTube</option>
+                                        </select>
+                                    </div>
+                                    <h3>Mức độ tương tác của Nền tảng</h3>
+                                    <div class="sub">
+                                        Tỉ trọng theo trạng thái tương tác
+                                    </div>
+                                    <div class="donut-row" id="c3"></div>
+                                </div>
+                            </div>
+                            <div class="section-title">
+                                3. Chi phí quảng cáo (Ads)
+                            </div>
+                            <div class="grid-2">
+                                <div class="panel">
+                                    <h3>Chi phí theo nền tảng</h3>
+                                    <div id="d1s"></div>
+                                    <div class="legend">
+                                        <span
+                                            ><i class="dot blue"></i
+                                            >Facebook</span
+                                        ><span
+                                            ><i class="dot navy"></i
+                                            >Website</span
+                                        ><span
+                                            ><i class="dot red"></i
+                                            >YouTube</span
+                                        ><span
+                                            ><i class="dot orange"></i
+                                            >TikTok</span
+                                        >
+                                    </div>
+                                </div>
+                                <div class="panel">
+                                    <h3>Chi phí và tổng tương tác theo BU</h3>
+                                    <div
+                                        class="legend"
+                                        style="margin: 4px 0 8px"
+                                    >
+                                        <span
+                                            ><i class="dot blue"></i>Chi phí
+                                            quảng cáo (tr đ)</span
+                                        ><span
+                                            ><i class="dot navy"></i>Tổng tương
+                                            tác</span
+                                        >
+                                    </div>
+                                    <div id="d1"></div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 16px">
+                                <div class="panel">
+                                    <h3>Xu hướng CPL (đ/Lead)</h3>
+                                    <div id="d3"></div>
+                                </div>
+                            </div>
+                            <div class="section-title">
+                                4. Bảng dữ liệu chiến dịch
+                            </div>
+                            <div class="panel">
+                                <h3>Chi tiết Ads Performance</h3>
+                                <div class="sub">
+                                    Slicer Kênh quảng cáo / BU / Format ở thanh
+                                    trên cùng lọc bảng này (kèm dòng Total)
+                                </div>
+                                <div class="tb-wrap">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="l">
+                                                    Tên chiến dịch
+                                                </th>
+                                                <th class="l">Kênh</th>
+                                                <th class="l">BU</th>
+                                                <th class="l">Format</th>
+                                                <th>Chi phí</th>
+                                                <th>Leads</th>
+                                                <th>CPL</th>
+                                                <th>Conv</th>
+                                                <th>CPConv</th>
+                                                <th>Mess</th>
+                                                <th>CPMess</th>
+                                                <th>Opty</th>
+                                                <th>Opty Win</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tb"></tbody>
+                                        <tfoot id="tf"></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="note">
+                                Số liệu là dữ liệu minh họa dựng theo ảnh mẫu;
+                                slicer chỉ lọc bảng chiến dịch.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="page" id="page-p2">
+                        <div class="filterbar f4">
+                            <div class="filter">
+                                <label>Kênh quảng cáo</label
+                                ><select id="cpf"></select>
+                            </div>
+                            <div class="filter">
+                                <label>BU</label
+                                ><select id="cbu"></select>
+                            </div>
+                            <div class="filter">
+                                <label>Chiến dịch</label
+                                ><select id="ccm"></select>
+                            </div>
+                            <div class="filter">
+                                <label>Thời gian</label
+                                ><select id="ctm"></select>
+                            </div>
+                        </div>
+                        <div class="pbody">
+                            <div class="kpi-wrap">
+                                <div class="kpis cols-6" id="ckpi"></div>
+                            </div>
+                            <div class="note" style="margin: 0 0 4px">
+                                ⚠ Dữ liệu minh họa để dựng layout. Chi phí,
+                                Leads, Clicks lấy từ bảng quảng cáo
+                                (Google/Meta…); Opty, Opty win, Doanh thu cần
+                                mapping từ CRM theo Campaign ID/UTM.
+                            </div>
+                            <div class="section-title">
+                                Hiệu quả chiến dịch Marketing: Chi phí → Lead →
+                                Opty → Doanh thu
+                            </div>
+                            <div class="grid-2">
+                                <div class="panel">
+                                    <h3>
+                                        ② Phễu chuyển đổi tổng thể của chiến
+                                        dịch
+                                    </h3>
+                                    <div class="sub">Lead → Opty → win</div>
+                                    <div id="cfun"></div>
+                                </div>
+                                <div class="panel">
+                                    <h3>
+                                        ③ Xu hướng Chi phí vs Doanh thu theo
+                                        tháng
+                                    </h3>
+                                    <div class="sub">triệu đồng</div>
+                                    <div id="ctr"></div>
+                                    <div class="legend">
+                                        <span
+                                            ><i class="dot blue"></i>Chi
+                                            phí</span
+                                        ><span
+                                            ><i class="dot orange"></i>Doanh
+                                            thu</span
+                                        ><span
+                                            ><i class="dot green"></i>ROAS
+                                            (đường)</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid-2" style="margin-top: 16px">
+                                <div class="panel">
+                                    <h3>④ Chi phí vs Doanh thu theo BU</h3>
+                                    <div class="sub">triệu đồng</div>
+                                    <div id="cbub"></div>
+                                    <div class="legend">
+                                        <span
+                                            ><i class="dot blue"></i>Chi
+                                            phí</span
+                                        ><span
+                                            ><i class="dot orange"></i>Doanh
+                                            thu</span
+                                        >
+                                    </div>
+                                </div>
+                                <div class="panel">
+                                    <h3>⑤ ROAS theo chiến dịch</h3>
+                                    <div class="sub">
+                                        so với ngưỡng 1,5 và 3,0
+                                    </div>
+                                    <div id="cro"></div>
+                                </div>
+                            </div>
+                            <div class="section-title">Bảng chi tiết</div>
+                            <div class="panel">
+                                <h3>① Hiệu quả theo từng chiến dịch</h3>
+                                <div class="sub">
+                                    Chi phí → Lead → Opty → Opty win → Doanh thu
+                                </div>
+                                <div class="tb-wrap">
+                                    <table class="table" id="ctb"></table>
+                                </div>
+                                <div class="note">
+                                    Quy tắc đánh giá (đề xuất, Finance xác
+                                    nhận): ROAS = Doanh thu / Chi phí. ≥ 3,0 →
+                                    <b>Tăng ngân sách</b>; 1,5–3,0 →
+                                    <b>Duy trì</b>; &lt; 1,5 →
+                                    <b>Cắt giảm/Tối ưu</b>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <script>
+            const C = {
+                b: "#168cf4",
+                n: "#173db4",
+                o: "#f36a2e",
+                g: "#0faf3e",
+                r: "#d94a55",
+                p: "#5a0b7d",
+            };
+            const f = (n) => Math.round(n).toLocaleString("vi-VN"),
+                f1 = (n) =>
+                    n.toLocaleString("vi-VN", { maximumFractionDigits: 1 }),
+                tr = (n) => f1(n / 1e6) + " tr",
+                kk = (n) =>
+                    n >= 1e6 ? f1(n / 1e6) + "tr" : Math.round(n / 1e3) + "k",
+                E = (id) => document.getElementById(id);
+            document.querySelectorAll(".sidebtn").forEach(
+                (b) =>
+                    (b.onclick = () => {
+                        document
+                            .querySelectorAll(".sidebtn")
+                            .forEach((x) => x.classList.remove("active"));
+                        b.classList.add("active");
+                        document
+                            .querySelectorAll(".page")
+                            .forEach((p) => p.classList.remove("active"));
+                        E("page-" + b.dataset.page).classList.add("active");
+                        document.querySelector(".content").scrollTo({ top: 0 });
+                    }),
+            );
+            const M = [
+                "01/26",
+                "02/26",
+                "03/26",
+                "04/26",
+                "05/26",
+                "06/26",
+                "07/26",
+                "08/26",
+                "09/26",
+                "10/26",
+            ];
+            const FB = [95, 95, 300, 230, 390, 300, 165, 395, 500, 85].map(
+                    (x) => x * 1e6,
+                ),
+                GG = [22, 22, 42, 45, 115, 42, 32, 50, 45, 15].map(
+                    (x) => x * 1e6,
+                );
+            const CPL = [
+                    252318, 230966, 134587, 231183, 376270, 329554, 276750,
+                    352982, 102497, 266381,
+                ],
+                CPC = [
+                    223488, 219188, 150873, 247097, 411639, 428871, 394344,
+                    389035, 84016, 151645,
+                ],
+                CPM = [
+                    3817323, 472086, 223545, 266176, 289283, 222183, 166754,
+                    327918, 346511, 2897121,
+                ];
+            let sd = 7;
+            const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            function ticks(mx, n = 4) {
+                const s = Math.pow(10, Math.floor(Math.log10(mx / n))),
+                    m = [1, 2, 2.5, 5, 10].find((x) => x * s * n >= mx) * s;
+                return Array.from({ length: n + 1 }, (_, i) => i * m);
+            }
+            function frame(W, H, L, R, T, B, mx, fmt, mx2, fmt2) {
+                const t = ticks(mx),
+                    top = t[t.length - 1],
+                    ih = H - T - B;
+                let s = "";
+                t.forEach((v) => {
+                    const y = T + ih - (v / top) * ih;
+                    s += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y}" y2="${y}"/><text class="ax" x="${L - 5}" y="${y + 3}" text-anchor="end">${fmt(v)}</text>`;
+                });
+                let top2 = 0;
+                if (mx2) {
+                    const t2 = ticks(mx2);
+                    top2 = t2[t2.length - 1];
+                    t2.forEach(
+                        (v) =>
+                            (s += `<text class="ax" x="${W - R + 5}" y="${T + ih - (v / top2) * ih + 3}">${fmt2(v)}</text>`),
+                    );
+                }
+                return { s, top, top2, ih };
+            }
+            function area(id, v, col, W = 380, fmt = kk) {
+                const H = 175,
+                    L = 36,
+                    R = 12,
+                    T = 20,
+                    B = 22,
+                    fr = frame(W, H, L, R, T, B, Math.max(...v) * 1.1, fmt),
+                    x = (i) => L + (i / (v.length - 1)) * (W - L - R),
+                    y = (a) => T + fr.ih - (a / fr.top) * fr.ih,
+                    p = v.map((a, i) => x(i) + "," + y(a)).join(" ");
+                let s = `<svg class="ch" viewBox="0 0 ${W} ${H}">${fr.s}<polygon points="${x(0)},${y(0)} ${p} ${x(v.length - 1)},${y(0)}" fill="${col}" opacity=".13"/><polyline points="${p}" fill="none" stroke="${col}" stroke-width="2"/>`;
+                v.forEach(
+                    (a, i) =>
+                        (s += `<circle cx="${x(i)}" cy="${y(a)}" r="2.8" fill="#fff" stroke="${col}" stroke-width="1.6"><title>${M[i]}: ${f(a)}</title></circle><text class="vl" fill="${col}" x="${x(i)}" y="${y(a) - 6}" text-anchor="${i == 0 ? "start" : i == v.length - 1 ? "end" : "middle"}">${fmt(a)}</text><text class="ax" x="${x(i)}" y="${H - 6}" text-anchor="middle">${M[i].slice(0, 2)}</text>`),
+                );
+                E(id).innerHTML = s + "</svg>";
+            }
+            function stacked() {
+                const YT = [0, 0, 5, 6, 12, 6, 4, 8, 7, 2].map((x) => x * 1e6),
+                    TT = [0, 0, 0, 3, 8, 10, 12, 15, 14, 4].map((x) => x * 1e6),
+                    S = [
+                        ["Facebook", FB, C.b],
+                        ["Website", GG, C.n],
+                        ["YouTube", YT, C.r],
+                        ["TikTok", TT, C.o],
+                    ],
+                    W = 540,
+                    H = 190,
+                    L = 44,
+                    R = 10,
+                    T = 12,
+                    B = 22,
+                    tot = FB.map((_, i) => S.reduce((a, r) => a + r[1][i], 0)),
+                    fr = frame(W, H, L, R, T, B, Math.max(...tot), tr),
+                    bw = (W - L - R) / 10;
+                let s = `<svg class="ch" viewBox="0 0 ${W} ${H}">${fr.s}`;
+                tot.forEach((t, i) => {
+                    const bx = L + i * bw + bw * 0.2,
+                        w = bw * 0.6;
+                    let y = T + fr.ih;
+                    S.forEach((r) => {
+                        const h = (r[1][i] / fr.top) * fr.ih;
+                        if (h > 0) {
+                            y -= h;
+                            s += `<rect x="${bx}" y="${y}" width="${w}" height="${h}" fill="${r[2]}"><title>${r[0]} ${M[i]}: ${tr(r[1][i])}</title></rect>`;
+                        }
+                    });
+                    s += `<text class="ax" x="${bx + w / 2}" y="${H - 6}" text-anchor="middle">${M[i]}</text>`;
+                });
+                E("d1s").innerHTML = s + "</svg>";
+            }
+            const N = 300,
+                cost = [],
+                leads = [],
+                soc = [],
+                web = [];
+            for (let i = 0; i < N; i++) {
+                const gap = i % 58 > 50 || (i > 118 && i < 124),
+                    b = gap
+                        ? 0.2
+                        : 5 +
+                          8 * Math.abs(Math.sin(i / 23)) +
+                          rnd() * 7 +
+                          (i > 220 && i < 260 ? 9 : 0);
+                cost.push(b * 1e6);
+                leads.push(
+                    Math.max(2, b * 8 + rnd() * 40) + (i == 92 ? 1150 : 0),
+                );
+                web.push(
+                    Math.max(
+                        0,
+                        1500 +
+                            900 * Math.sin(i / 40) +
+                            (i > 110 && i < 150 ? 2200 : 0) +
+                            rnd() * 900 -
+                            (i == 95 ? 2500 : 0),
+                    ),
+                );
+                soc.push(
+                    400 +
+                        1700 * Math.abs(Math.sin(i / 31)) +
+                        rnd() * 900 +
+                        (i == 12 ? 2800 : 0),
+                );
+            }
+            const LB = Array.from({ length: N }, (_, i) => {
+                const d = new Date(2026, 0, 1 + i);
+                return (
+                    String(d.getDate()).padStart(2, "0") +
+                    "/" +
+                    String(d.getMonth() + 1).padStart(2, "0")
+                );
+            });
+            function dual(id, A, B2, ca, cb, bars, fa, fb, W, H) {
+                const L = 44,
+                    R = 44,
+                    T = 12,
+                    B = 22,
+                    fr = frame(
+                        W,
+                        H,
+                        L,
+                        R,
+                        T,
+                        B,
+                        Math.max(...A) * 1.05,
+                        fa,
+                        Math.max(...B2) * 1.05,
+                        fb,
+                    ),
+                    x = (i) => L + (i / (A.length - 1)) * (W - L - R),
+                    ya = (a) => T + fr.ih - (a / fr.top) * fr.ih,
+                    yb = (a) => T + fr.ih - (a / fr.top2) * fr.ih;
+                let s = `<svg class="ch" viewBox="0 0 ${W} ${H}">${fr.s}`;
+                if (bars)
+                    B2.forEach(
+                        (a, i) =>
+                            (s += `<rect x="${x(i) - 1.5}" y="${yb(a)}" width="3" height="${T + fr.ih - yb(a)}" fill="${cb}"/>`),
+                    );
+                else
+                    s += `<polyline fill="none" stroke="${cb}" stroke-width="1.6" points="${B2.map((a, i) => x(i) + "," + yb(a)).join(" ")}"/>`;
+                s += `<polyline fill="none" stroke="${ca}" stroke-width="1.8" points="${A.map((a, i) => x(i) + "," + ya(a)).join(" ")}"/>`;
+                for (let i = 0; i < N; i += 30)
+                    s += `<text class="ax" x="${x(i)}" y="${H - 6}" text-anchor="middle">${LB[i]}</text>`;
+                E(id).innerHTML = s + "</svg>";
+            }
+            function donut(id, seg) {
+                const tot = seg.reduce((a, b) => a + b[1], 0);
+                let o = 0,
+                    g = seg
+                        .map((s) => {
+                            const a = o,
+                                b = o + (s[1] / tot) * 100;
+                            o = b;
+                            return `${s[2]} ${a}% ${b}%`;
+                        })
+                        .join(",");
+                E(id).innerHTML =
+                    `<div class="donut" style="background:conic-gradient(${g})"></div><div class="legend-col">${seg.map((s) => `<div><i class="dot" style="background:${s[2]}"></i>${s[0]}<b>${f(s[1])} · ${f1((s[1] / tot) * 100)}%</b></div>`).join("")}</div>`;
+            }
+            const kp = (a, cls = "") =>
+                a
+                    .map(
+                        (x) =>
+                            `<div class="kpi"><div class="value">${x[0]}</div><div class="label">${x[1]}</div>${x[2] ? `<div class="dl ${x[3]}">${x[2]}</div>` : ""}</div>`,
+                    )
+                    .join("");
+            // Trang 1
+            E("k1").innerHTML = kp([
+                ["942.559", "Tổng tương tác", "4,0% ↓", "dn"],
+                ["433.425", "Active Users (Website)", "+22,5% ↑", "up"],
+                ["497.750", "FB Engagement", "20,3% ↓", "dn"],
+                ["1.930", "YT Engagement", "7,2% ↓", "dn"],
+                ["9.454", "TikTok Engagement", "+958,7% ↑", "up"],
+                ["288.310", "Lượt xem (Views)", "84,0% ↓", "dn"],
+            ]);
+
+            // Trang 2
+            const sf = FB.reduce((a, b) => a + b),
+                sg = GG.reduce((a, b) => a + b),
+                av = (a) => a.reduce((x, y) => x + y) / a.length;
+            stacked();
+            donut("d2", [
+                ["Active Users", 433425, C.b],
+                ["FB Engagement", 497750, C.n],
+                ["YT Engagement", 1930, C.o],
+                ["TikTok Engagement", 9454, C.p],
+            ]);
+            area("d3", CPL, C.b, 1100);
+            // Xu hướng 4 nền tảng
+            const PL = [
+                {
+                    k: "Facebook",
+                    c: C.b,
+                    v: [
+                        38000, 42500, 51200, 47300, 60100, 58800, 41200, 53400,
+                        62350, 42900,
+                    ],
+                },
+                {
+                    k: "TikTok",
+                    c: C.o,
+                    v: [0, 0, 120, 380, 720, 1350, 1900, 2050, 2150, 784],
+                },
+                {
+                    k: "Website",
+                    c: C.n,
+                    v: [
+                        32000, 35500, 41200, 45800, 52100, 48600, 38200, 46900,
+                        51300, 41825,
+                    ],
+                },
+                {
+                    k: "YouTube",
+                    c: C.r,
+                    v: [140, 160, 190, 170, 230, 210, 150, 260, 240, 180],
+                },
+            ];
+            const on = { Facebook: 1, TikTok: 1, Website: 1, YouTube: 1 };
+            let logS = false;
+            E("pt").innerHTML =
+                PL.map(
+                    (p) =>
+                        `<label><input type="checkbox" checked data-k="${p.k}"><i class="dot" style="background:${p.c}"></i>${p.k}</label>`,
+                ).join("") +
+                `<label style="margin-left:auto"><input type="checkbox" id="lg"> Thang log (xem rõ TikTok/YouTube)</label>`;
+            E("pt").onchange = (e) => {
+                if (e.target.id == "lg") logS = e.target.checked;
+                else on[e.target.dataset.k] = e.target.checked ? 1 : 0;
+                lines();
+            };
+            function lines() {
+                const W = 1100,
+                    H = 250,
+                    L = 52,
+                    R = 20,
+                    T = 14,
+                    B = 26,
+                    A = PL.filter((p) => on[p.k]);
+                if (!A.length) {
+                    E("c1").innerHTML =
+                        '<div class="note">Chọn ít nhất một nền tảng</div>';
+                    return;
+                }
+                const mx = Math.max(...A.flatMap((p) => p.v)),
+                    ih = H - T - B,
+                    x = (i) => L + ((i + 0.5) / 10) * (W - L - R);
+                let s = `<svg class="ch" viewBox="0 0 ${W} ${H}">`,
+                    y;
+                if (logS) {
+                    const top = Math.ceil(Math.log10(mx * 1.05));
+                    y = (a) => T + ih - (Math.log10(Math.max(a, 1)) / top) * ih;
+                    for (let e = 0; e <= top; e++) {
+                        const yy = T + ih - (e / top) * ih;
+                        s += `<line class="gl" x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}"/><text class="ax" x="${L - 6}" y="${yy + 3}" text-anchor="end">${f(Math.pow(10, e))}</text>`;
+                    }
+                } else {
+                    const t = ticks(mx * 1.05),
+                        top = t[t.length - 1];
+                    y = (a) => T + ih - (a / top) * ih;
+                    t.forEach((v) => {
+                        const yy = y(v);
+                        s += `<line class="gl" x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}"/><text class="ax" x="${L - 6}" y="${yy + 3}" text-anchor="end">${f(v)}</text>`;
+                    });
+                }
+                M.forEach(
+                    (m, i) =>
+                        (s += `<text class="ax" x="${x(i)}" y="${H - 8}" text-anchor="middle">${m}</text>`),
+                );
+                A.forEach((p) => {
+                    s += `<polyline fill="none" stroke="${p.c}" stroke-width="2.2" points="${p.v.map((a, i) => x(i) + "," + y(a)).join(" ")}"/>`;
+                    p.v.forEach(
+                        (a, i) =>
+                            (s += `<circle cx="${x(i)}" cy="${y(a)}" r="3" fill="#fff" stroke="${p.c}" stroke-width="1.8"><title>${p.k} ${M[i]}: ${f(a)}</title></circle>`),
+                    );
+                });
+                E("c1").innerHTML = s + "</svg>";
+                E("lg1").innerHTML = A.map(
+                    (p) =>
+                        `<span><i class="dot" style="background:${p.c}"></i>${p.k} (${f(p.v.reduce((a, b) => a + b))})</span>`,
+                ).join("");
+            }
+            lines();
+            // Mức độ tương tác theo nền tảng (pie + bộ lọc nhỏ)
+            const ST = [
+                ["Active Users", C.b],
+                ["Reactions", C.n],
+                ["Comments", C.o],
+                ["Shares", C.p],
+                ["Clicks", C.g],
+                ["Subs", C.r],
+                ["Views", "#ffc107"],
+            ];
+            const PD = {
+                Facebook: [0, 330100, 27400, 21250, 112300, 6700, 150000],
+                TikTok: [0, 5900, 410, 620, 1290, 1234, 30910],
+                Website: [433425, 0, 0, 0, 0, 0, 55000],
+                YouTube: [0, 820, 140, 95, 410, 465, 52400],
+            };
+            function pie() {
+                const k = E("fp").value,
+                    d =
+                        k == "All"
+                            ? ST.map((_, i) =>
+                                  Object.values(PD).reduce(
+                                      (a, r) => a + r[i],
+                                      0,
+                                  ),
+                              )
+                            : PD[k];
+                donut(
+                    "c3",
+                    ST.map((s, i) => [s[0], d[i], s[1]]).filter(
+                        (r) => r[1] > 0,
+                    ),
+                );
+            }
+            pie();
+            // Chi phí & tương tác theo BU
+            function hb(id, R, fmt, col) {
+                const mx = Math.max(...R.map((r) => r[1]));
+                E(id).innerHTML = R.map(
+                    (r) =>
+                        `<div class="barh-row cost"><span>${r[0]}</span><div class="track"><div class="fill" style="width:${(r[1] / mx) * 100}%;background:${col}"></div></div><b>${fmt(r[1])}</b></div>`,
+                ).join("");
+            }
+            // Trang 3
+            const CP = [
+                [
+                    "AUT_INVT-Search",
+                    "Google Ads",
+                    "Automation",
+                    "Search",
+                    270658845,
+                    229,
+                    744,
+                    0,
+                    120,
+                    14,
+                ],
+                [
+                    "2026_SOL_Installer - Miền Bắc_Lead",
+                    "Facebook",
+                    "Solar",
+                    "Lead Form",
+                    107571075,
+                    1396,
+                    1396,
+                    114,
+                    640,
+                    82,
+                ],
+                [
+                    "2026_CCF_SOL_Lead_EU_Universal_Miền Nam",
+                    "Facebook",
+                    "Solar",
+                    "Lead Form",
+                    78944735,
+                    641,
+                    641,
+                    103,
+                    300,
+                    38,
+                ],
+                [
+                    "2026_CCF_SOL_Lead_EU_Universal_Miền Bắc",
+                    "Facebook",
+                    "Solar",
+                    "Lead Form",
+                    78348295,
+                    401,
+                    401,
+                    45,
+                    190,
+                    24,
+                ],
+                [
+                    "2026_SOL_Installer - Đông Nam Bộ_Lead",
+                    "Facebook",
+                    "Solar",
+                    "Lead Form",
+                    63415327,
+                    505,
+                    505,
+                    55,
+                    260,
+                    35,
+                ],
+                [
+                    "2026_CCF_Sol_Affiliate_Conversion",
+                    "Facebook",
+                    "Solar",
+                    "Conversion",
+                    61577418,
+                    32,
+                    221,
+                    64,
+                    18,
+                    2,
+                ],
+                [
+                    "2026_CCF_SOL_Lead_EU_Universal_Miền Trung",
+                    "Facebook",
+                    "Solar",
+                    "Lead Form",
+                    55165511,
+                    237,
+                    237,
+                    14,
+                    110,
+                    13,
+                ],
+                [
+                    "2026_PRJ_Lead.R1",
+                    "Facebook",
+                    "Project",
+                    "Lead Form",
+                    53277673,
+                    167,
+                    167,
+                    38,
+                    80,
+                    11,
+                ],
+                [
+                    "2026_SOL_Installer - Miền Trung_Lead",
+                    "Facebook",
+                    "Solar",
+                    "Lead Form",
+                    53206050,
+                    357,
+                    357,
+                    49,
+                    170,
+                    22,
+                ],
+                [
+                    "2026N_AUT_INVT_Mess_Đông Nam Bộ",
+                    "Facebook",
+                    "Automation",
+                    "Messenger",
+                    46564653,
+                    89,
+                    0,
+                    395,
+                    45,
+                    5,
+                ],
+                [
+                    "2026N_AUT_INVT_Mess_Miền Bắc",
+                    "Facebook",
+                    "Automation",
+                    "Messenger",
+                    43098581,
+                    161,
+                    0,
+                    1249,
+                    85,
+                    10,
+                ],
+                [
+                    "2026_SOL_Installer - Miền Bắc_Mess",
+                    "Facebook",
+                    "Solar",
+                    "Messenger",
+                    42686963,
+                    275,
+                    0,
+                    937,
+                    140,
+                    17,
+                ],
+                [
+                    "2026_Solar_End User_Conversion_Đông Nam Bộ",
+                    "Facebook",
+                    "Solar",
+                    "Conversion",
+                    41051407,
+                    5,
+                    115,
+                    5,
+                    3,
+                    0,
+                ],
+            ];
+            const dv = (a, b) => (b ? f(a / b) : "—"),
+                ip = (n) => (n >= 1e6 ? f1(n / 1e6) + "M" : f1(n / 1e3) + "K");
+            [
+                ["fk", 1],
+                ["fb", 2],
+                ["ff", 3],
+            ].forEach(([id, c]) => {
+                E(id).innerHTML += [...new Set(CP.map((r) => r[c]))]
+                    .map((x) => `<option>${x}</option>`)
+                    .join("");
+            });
+            function rt() {
+                const a = E("fk").value,
+                    b = E("fb").value,
+                    c = E("ff").value,
+                    R = CP.filter(
+                        (r) =>
+                            (a == "All" || r[1] == a) &&
+                            (b == "All" || r[2] == b) &&
+                            (c == "All" || r[3] == c),
+                    ),
+                    S = (i) => R.reduce((x, r) => x + r[i], 0),
+                    tc = S(4),
+                    tl = S(5),
+                    tv = S(6),
+                    tm = S(7);
+                E("tb").innerHTML =
+                    R.map(
+                        (r) =>
+                            `<tr><td class="l">${r[0]}</td><td class="l"><span class="badge ${r[1] == "Facebook" ? "" : "g"}">${r[1]}</span></td><td class="l">${r[2]}</td><td class="l">${r[3]}</td><td>${f(r[4])}</td><td>${f(r[5])}</td><td class="good">${dv(r[4], r[5])}</td><td>${f(r[6])}</td><td class="warn">${dv(r[4], r[6])}</td><td>${f(r[7])}</td><td class="warn">${dv(r[4], r[7])}</td><td>${f(r[8])}</td><td>${f(r[9])}</td></tr>`,
+                    ).join("") ||
+                    '<tr><td class="l" colspan="13">Không có chiến dịch phù hợp bộ lọc</td></tr>';
+                E("tf").innerHTML =
+                    `<tr><td class="l">Total</td><td></td><td></td><td></td><td>${f(tc)}</td><td>${f(tl)}</td><td>${dv(tc, tl)}</td><td>${f(tv)}</td><td>${dv(tc, tv)}</td><td>${f(tm)}</td><td>${dv(tc, tm)}</td><td>${f(S(8))}</td><td>${f(S(9))}</td></tr>`;
+            }
+            rt();
+            {
+                const bu = {};
+                CP.forEach((r) => (bu[r[2]] = (bu[r[2]] || 0) + r[4]));
+                const EN = {
+                    Solar: 612400,
+                    Automation: 214159,
+                    Project: 116000,
+                };
+                const R = Object.entries(bu)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([k, v]) => [k, v, EN[k] || 0]),
+                    m1 = Math.max(...R.map((r) => r[1])),
+                    m2 = Math.max(...R.map((r) => r[2]));
+                const bar = (v, m, c, t) =>
+                    `<div style="display:grid;grid-template-columns:1fr 70px;align-items:center;gap:6px;margin:2px 0"><div style="background:#f5f5f5;height:18px"><div style="height:100%;width:${(v / m) * 100}%;background:${c}"></div></div><b style="font-size:10px">${t}</b></div>`;
+                E("d1").innerHTML = R.map(
+                    (r) =>
+                        `<div style="display:grid;grid-template-columns:90px 1fr;align-items:center;gap:8px;margin:0 0 14px;font-size:10px"><span style="text-align:right">${r[0]}</span><div style="border-left:1px solid #ccc;padding-left:6px">${bar(r[1], m1, C.b, f1(r[1] / 1e6) + " tr")}${bar(r[2], m2, C.n, f(r[2]))}</div></div>`,
+                ).join("");
+            }
+
+            (function () {
+                const M = ["T2", "T3", "T4", "T5", "T6", "T7"],
+                    F = [0.8, 0.9, 1, 1.1, 1.05, 1.2];
+                // name, platform, BU, spend/tháng (tr), CPL (tr), lead→KH ratio (KH/lead), lead→opty, opty→won, deal size (tr), trend
+                const C = [
+                    [
+                        "AUT_INVT-Search",
+                        "Google Ads",
+                        "AUT",
+                        12,
+                        0.45,
+                        0.55,
+                        0.3,
+                        0.3,
+                        95,
+                        0.05,
+                    ],
+                    [
+                        "AUT_PLC-Display",
+                        "Google Ads",
+                        "AUT",
+                        8,
+                        0.6,
+                        0.5,
+                        0.22,
+                        0.25,
+                        80,
+                        -0.02,
+                    ],
+                    [
+                        "ELE_Meta-Lead",
+                        "Meta Ads",
+                        "ELE",
+                        15,
+                        0.35,
+                        0.6,
+                        0.26,
+                        0.22,
+                        70,
+                        0.0,
+                    ],
+                    [
+                        "SOL_Search",
+                        "Google Ads",
+                        "SOL",
+                        10,
+                        0.9,
+                        0.45,
+                        0.35,
+                        0.28,
+                        150,
+                        0.08,
+                    ],
+                    [
+                        "UPS_FB-Mess",
+                        "Meta Ads",
+                        "UPS",
+                        9,
+                        0.3,
+                        0.65,
+                        0.18,
+                        0.2,
+                        45,
+                        -0.06,
+                    ],
+                    [
+                        "PRJ_LinkedIn",
+                        "LinkedIn",
+                        "PRJ",
+                        14,
+                        1.8,
+                        0.4,
+                        0.4,
+                        0.18,
+                        420,
+                        0.03,
+                    ],
+                ];
+                const R = C.map((c) => {
+                    const m = M.map((_, i) => {
+                        const f = F[i] * (1 + c[9] * i),
+                            sp = c[3] * f,
+                            ld = sp / c[4],
+                            kh = ld * c[5],
+                            op = ld * c[6],
+                            w = op * c[7];
+                        return { sp, ld, kh, op, w, rev: w * c[8] };
+                    });
+                    return { n: c[0], p: c[1], bu: c[2], m };
+                });
+                let bu = "Tất cả",
+                    pf = "Tất cả",
+                    cm = "Tất cả",
+                    tm = -1;
+                const BUS = ["Tất cả", "AUT", "ELE", "SOL", "UPS", "PRJ"];
+                const $ = (id) => document.getElementById(id),
+                    fmt = (x, d = 0) =>
+                        x.toLocaleString("vi-VN", {
+                            maximumFractionDigits: d,
+                            minimumFractionDigits: d,
+                        });
+                const vnd = (x) =>
+                    x >= 1000 ? fmt(x / 1000, 2) + " tỷ" : fmt(x, 0) + " tr";
+                const sum = (a, k) => a.reduce((s, m) => s + m[k], 0);
+                const tot = (r) => {
+                    const o = { sp: 0, ld: 0, kh: 0, op: 0, w: 0, rev: 0 };
+                    r.m
+                        .filter((_, i) => tm < 0 || i == tm)
+                        .forEach((m) => {
+                            for (const k in o) o[k] += m[k];
+                        });
+                    return o;
+                };
+                const verdict = (r) =>
+                    r >= 3
+                        ? ["Tăng ngân sách", "t-good"]
+                        : r >= 1.5
+                          ? ["Duy trì", "t-mid"]
+                          : ["Cắt giảm / Tối ưu", "t-bad"];
+                function render() {
+                    const rows = R.filter(
+                        (r) =>
+                            (bu == "Tất cả" || r.bu == bu) &&
+                            (pf == "Tất cả" || r.p == pf) &&
+                            (cm == "Tất cả" || r.n == cm),
+                    ).map((r) => ({ ...r, t: tot(r) }));
+                    const T = { sp: 0, ld: 0, kh: 0, op: 0, w: 0, rev: 0 };
+                    rows.forEach((r) => {
+                        for (const k in T) T[k] += r.t[k];
+                    });
+                    const roas = T.rev / T.sp;
+                    $("ckpi").innerHTML = [
+                        ["Tổng chi phí", vnd(T.sp), "Toàn bộ chiến dịch"],
+                        [
+                            "Leads",
+                            fmt(T.ld),
+                            "CPL: " + fmt(T.sp / T.ld, 2) + " tr",
+                        ],
+                        [
+                            "Opty",
+                            fmt(T.op),
+                            "Lead→Opty " + fmt((T.op / T.ld) * 100, 1) + "%",
+                        ],
+                        [
+                            "Opty thắng",
+                            fmt(T.w),
+                            "Win rate " + fmt((T.w / T.op) * 100, 1) + "%",
+                        ],
+                        ["Doanh thu", vnd(T.rev), "Từ Opty win"],
+                        ["ROAS", fmt(roas, 2) + "x", verdict(roas)[0]],
+                    ]
+                        .map(
+                            (k) =>
+                                `<div class="kpi"><div class="value">${k[1]}</div><div class="label">${k[0]}</div><div class="dl mu">${k[2]}</div></div>`,
+                        )
+                        .join("");
+                    const h = [
+                        "Chiến dịch",
+                        "Nền tảng",
+                        "Chi phí (tr)",
+                        "Leads",
+                        "CPL (tr)",
+                        "Opty",
+                        "Opty win",
+                        "Win rate",
+                        "Doanh thu (tr)",
+                        "ROAS",
+                    ];
+                    let t =
+                        "<tr>" +
+                        h.map((x) => `<th>${x}</th>`).join("") +
+                        "</tr>";
+                    rows.forEach((r) => {
+                        const x = r.t,
+                            ro = x.rev / x.sp,
+                            v = verdict(ro);
+                        t += `<tr><td>${r.n}</td><td>${r.p}</td><td>${fmt(x.sp)}</td><td>${fmt(x.ld)}</td><td>${fmt(x.sp / x.ld, 2)}</td><td>${fmt(x.op)}</td><td>${fmt(x.w)}</td><td>${fmt((x.w / x.op) * 100, 1)}%</td><td>${fmt(x.rev)}</td><td><b>${fmt(ro, 2)}x</b></td></tr>`;
+                    });
+                    const v = verdict(roas);
+                    t += `<tr class="tot"><td>Tổng cộng</td><td></td><td>${fmt(T.sp)}</td><td>${fmt(T.ld)}</td><td>${fmt(T.sp / T.ld, 2)}</td><td>${fmt(T.op)}</td><td>${fmt(T.w)}</td><td>${fmt((T.w / T.op) * 100, 1)}%</td><td>${fmt(T.rev)}</td><td>${fmt(roas, 2)}x</td></tr>`;
+                    $("ctb").innerHTML = t;
+                    // funnel
+                    const st = [
+                            ["Các chiến dịch", T.kh, "#168cf4"],
+                            ["Lead", T.ld, "#69b1eb"],
+                            ["Opty", T.op, "#f36a2e"],
+                            ["Opty win", T.w, "#0faf3e"],
+                        ],
+                        mx = st[0][1] || 1;
+                    let s =
+                        '<svg class="ch" viewBox="0 0 560 230" width="100%">';
+                    st.forEach((a, i) => {
+                        const w = Math.max((a[1] / mx) * 400, 6),
+                            y = i * 55 + 6;
+                        s += `<rect x="${(560 - w) / 2}" y="${y}" width="${w}" height="42" rx="4" fill="${a[2]}"/><text x="280" y="${y + 19}" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:13px">${fmt(a[1])}</text><text x="280" y="${y + 34}" text-anchor="middle" style="fill:#fff">${a[0]}${i ? " (" + fmt((a[1] / st[i - 1][1]) * 100, 1) + "% bước trước)" : ""}</text>`;
+                    });
+                    $("cfun").innerHTML = s + "</svg>";
+                    // trend
+                    const mo = M.map((_, i) => {
+                        const o = { sp: 0, rev: 0 };
+                        rows.forEach((r) => {
+                            o.sp += r.m[i].sp;
+                            o.rev += r.m[i].rev;
+                        });
+                        return o;
+                    });
+                    const mm =
+                            Math.max(...mo.map((o) => Math.max(o.sp, o.rev))) *
+                                1.15 || 1,
+                        W = 560,
+                        Hh = 230,
+                        L = 36,
+                        pw = (W - L) / M.length;
+                    let g = `<svg class="ch" viewBox="0 0 ${W} ${Hh}" width="100%">`;
+                    for (let i = 0; i <= 4; i++) {
+                        const y = 190 - i * 40;
+                        g += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#eee"/><text x="${L - 4}" y="${y + 4}" text-anchor="end">${fmt((mm * i) / 4 / (mm > 1000 ? 1000 : 1), mm > 1000 ? 1 : 0)}${mm > 1000 ? "k" : ""}</text>`;
+                    }
+                    let pts = [];
+                    mo.forEach((o, i) => {
+                        const x = L + i * pw + pw / 2,
+                            b = pw * 0.28,
+                            hs = (o.sp / mm) * 160,
+                            hr = (o.rev / mm) * 160;
+                        g += `<rect x="${x - b - 2}" y="${190 - hs}" width="${b}" height="${hs}" fill="#168cf4"/><rect x="${x + 2}" y="${190 - hr}" width="${b}" height="${hr}" fill="#f36a2e"/><text x="${x}" y="206" text-anchor="middle">${M[i]}</text>`;
+                        pts.push([x, o.rev / o.sp]);
+                    });
+                    const rm = Math.max(...pts.map((p) => p[1]), 3) * 1.1;
+                    const pp = pts
+                        .map((p) => `${p[0]},${190 - (p[1] / rm) * 160}`)
+                        .join(" ");
+                    g +=
+                        `<polyline points="${pp}" fill="none" stroke="#0faf3e" stroke-width="2"/>` +
+                        pts
+                            .map(
+                                (p) =>
+                                    `<circle cx="${p[0]}" cy="${190 - (p[1] / rm) * 160}" r="3.5" fill="#0faf3e"/><text x="${p[0]}" y="${183 - (p[1] / rm) * 160}" text-anchor="middle" style="fill:#0faf3e;font-weight:700">${fmt(p[1], 1)}x</text>`,
+                            )
+                            .join("");
+                    $("ctr").innerHTML = g + "</svg>";
+                    // BU
+                    const bs = BUS.slice(1).map((b) => {
+                        const o = { b, sp: 0, rev: 0 };
+                        R.filter(
+                            (r) =>
+                                r.bu == b &&
+                                (pf == "Tất cả" || r.p == pf) &&
+                                (cm == "Tất cả" || r.n == cm),
+                        ).forEach((r) => {
+                            const x = tot(r);
+                            o.sp += x.sp;
+                            o.rev += x.rev;
+                        });
+                        return o;
+                    });
+                    const bm =
+                        Math.max(...bs.map((o) => Math.max(o.sp, o.rev))) * 1.1;
+                    let q =
+                        '<svg class="ch" viewBox="0 0 560 230" width="100%">';
+                    bs.forEach((o, i) => {
+                        const y = i * 44 + 8,
+                            on = bu == "Tất cả" || bu == o.b;
+                        q += `<g opacity="${on ? 1 : 0.3}"><text x="34" y="${y + 16}" text-anchor="end" style="font-weight:700">${o.b}</text><rect x="40" y="${y}" width="${(o.sp / bm) * 440}" height="15" fill="#168cf4"/><text x="${44 + (o.sp / bm) * 440}" y="${y + 12}">${fmt(o.sp)}</text><rect x="40" y="${y + 17}" width="${(o.rev / bm) * 440}" height="15" fill="#f36a2e"/><text x="${44 + (o.rev / bm) * 440}" y="${y + 29}">${fmt(o.rev)} (${fmt(o.rev / o.sp, 1)}x)</text></g>`;
+                    });
+                    $("cbub").innerHTML = q + "</svg>";
+                    // ROAS
+                    const rs = rows
+                            .map((r) => ({ n: r.n, v: r.t.rev / r.t.sp }))
+                            .sort((a, b) => b.v - a.v),
+                        xm = Math.max(...rs.map((o) => o.v), 3.5) * 1.1,
+                        bw = 380;
+                    let z = `<svg class="ch" viewBox="0 0 560 ${rs.length * 34 + 30}" width="100%">`;
+                    rs.forEach((o, i) => {
+                        const y = i * 34 + 8,
+                            c =
+                                o.v >= 3
+                                    ? "#0faf3e"
+                                    : o.v >= 1.5
+                                      ? "#e0a100"
+                                      : "#d94a55";
+                        z += `<text x="132" y="${y + 15}" text-anchor="end">${o.n}</text><rect x="138" y="${y}" width="${(o.v / xm) * bw}" height="22" fill="${c}" rx="3"/><text x="${142 + (o.v / xm) * bw}" y="${y + 15}" style="font-weight:700">${fmt(o.v, 2)}x</text>`;
+                    });
+                    const H2 = rs.length * 34 + 12;
+                    [1.5, 3].forEach((k) => {
+                        z += `<line x1="${138 + (k / xm) * bw}" x2="${138 + (k / xm) * bw}" y1="0" y2="${H2}" stroke="#6b7385" stroke-dasharray="4"/><text x="${138 + (k / xm) * bw}" y="${H2 + 12}" text-anchor="middle">${k}x</text>`;
+                    });
+                    $("cro").innerHTML = z + "</svg>";
+                }
+                const opt = (id, a, fn) => {
+                    $(id).innerHTML = a
+                        .map((x, i) => `<option value="${i}">${x}</option>`)
+                        .join("");
+                    $(id).onchange = (e) => {
+                        fn(+e.target.value);
+                        render();
+                    };
+                };
+                const PF = ["Tất cả", ...new Set(R.map((r) => r.p))],
+                    CM = ["Tất cả", ...R.map((r) => r.n)];
+                opt("cpf", PF, (i) => (pf = PF[i]));
+                opt("cbu", BUS, (i) => (bu = BUS[i]));
+                opt("ccm", CM, (i) => (cm = CM[i]));
+                opt("ctm", ["Tất cả", ...M], (i) => (tm = i - 1));
+                render();
+            })();
+        </script>
+    </body>
+</html>
